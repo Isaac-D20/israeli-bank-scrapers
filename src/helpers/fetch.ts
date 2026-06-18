@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 import { type Page } from 'puppeteer';
 
 const JSON_CONTENT_TYPE = 'application/json';
@@ -27,10 +27,10 @@ export async function fetchGet<TResult>(url: string, extraHeaders: Record<string
 export async function fetchPost<TResult = any>(
   url: string,
   data: Record<string, any>,
-  extraHeaders: Record<string, any> = {},
+  headers: Record<string, any> = {},
 ): Promise<TResult> {
 
-  const response = await axios.post(url, data, { extraHeaders });
+  const response = await axios.post(url, data, { headers });
 
   if (response.status !== 200) {
     throw new Error(`Sending a request to the institute server returned with status code ${response.status}`);
