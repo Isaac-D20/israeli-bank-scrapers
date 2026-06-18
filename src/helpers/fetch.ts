@@ -10,7 +10,7 @@ function getJsonHeaders() {
   };
 }
 
-async function fetchGet(url, extraHeaders) {
+export async function fetchGet<TResult>(url: string, extraHeaders: Record<string, any>): Promise<TResult> {
   let headers = getJsonHeaders();
   if (extraHeaders) {
     headers = Object.assign(headers, extraHeaders);
@@ -24,13 +24,13 @@ async function fetchGet(url, extraHeaders) {
   return response.data;
 }
 
-async function fetchPost(url, data, extraHeaders = {}) {
-  const headers = {
-    ...getJsonHeaders(),
-    ...extraHeaders
-  };
+export async function fetchPost<TResult = any>(
+  url: string,
+  data: Record<string, any>,
+  extraHeaders: Record<string, any> = {},
+): Promise<TResult> {
 
-  const response = await axios.post(url, data, { headers });
+  const response = await axios.post(url, data, { extraHeaders });
 
   if (response.status !== 200) {
     throw new Error(`Sending a request to the institute server returned with status code ${response.status}`);
@@ -38,16 +38,17 @@ async function fetchPost(url, data, extraHeaders = {}) {
   return response.data;
 }
 
-async function fetchGraphql(url, query, variables = {}, extraHeaders = {}) {
-  const result = await fetchPost(url, {
-    operationName: null,
-    query,
-    variables
-  }, extraHeaders);
+export async function fetchGraphql<TResult>(
+  url: string,
+  query: string,
+  variables: Record<string, unknown> = {},
+  extraHeaders: Record<string, any> = {},
+): Promise<TResult> {
+  const result = await fetchPost(url, { operationName: null, query, variables }, extraHeaders);
   if (result.errors?.length) {
     throw new Error(result.errors[0].message);
   }
-  return result.data;
+  return result.data as Promise<TResult>;
 }
 
 // The following functions (fetchGetWithinPage, fetchPostWithinPage) operate within a browser page context
