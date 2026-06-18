@@ -1,3 +1,4 @@
+const axios = require('axios');
 import { type Page } from 'puppeteer';
 
 const JSON_CONTENT_TYPE = 'application/json';
@@ -9,51 +10,49 @@ function getJsonHeaders() {
   };
 }
 
-export async function fetchGet<TResult>(url: string, extraHeaders: Record<string, any>): Promise<TResult> {
+async function fetchGet(url, extraHeaders) {
   let headers = getJsonHeaders();
   if (extraHeaders) {
     headers = Object.assign(headers, extraHeaders);
   }
-  const request = {
-    method: 'GET',
-    headers,
-  };
-  const fetchResult = await fetch(url, request);
 
-  if (fetchResult.status !== 200) {
-    throw new Error(`sending a request to the institute server returned with status code ${fetchResult.status}`);
+  const response = await axios.get(url, { headers });
+
+  if (response.status !== 200) {
+    throw new Error(`Sending a request to the institute server returned with status code ${response.status}`);
   }
-
-  return fetchResult.json();
+  return response.data;
 }
 
-export async function fetchPost<TResult = any>(
-  url: string,
-  data: Record<string, any>,
-  extraHeaders: Record<string, any> = {},
-): Promise<TResult> {
-  const request = {
-    method: 'POST',
-    headers: { ...getJsonHeaders(), ...extraHeaders },
-    body: JSON.stringify(data),
+async function fetchPost(url, data, extraHeaders = {}) {
+  const headers = {
+    ...getJsonHeaders(),
+    ...extraHeaders
   };
-  const result = await fetch(url, request);
-  return result.json();
+
+  const response = await axios.post(url, data, { headers });
+
+  if (response.status !== 200) {
+    throw new Error(`Sending a request to the institute server returned with status code ${response.status}`);
+  }
+  return response.data;
 }
 
-export async function fetchGraphql<TResult>(
-  url: string,
-  query: string,
-  variables: Record<string, unknown> = {},
-  extraHeaders: Record<string, any> = {},
-): Promise<TResult> {
-  const result = await fetchPost(url, { operationName: null, query, variables }, extraHeaders);
+async function fetchGraphql(url, query, variables = {}, extraHeaders = {}) {
+  const result = await fetchPost(url, {
+    operationName: null,
+    query,
+    variables
+  }, extraHeaders);
   if (result.errors?.length) {
     throw new Error(result.errors[0].message);
   }
-  return result.data as Promise<TResult>;
+  return result.data;
 }
 
+// The following functions (fetchGetWithinPage, fetchPostWithinPage) operate within a browser page context
+// (e.g., Playwright's page.evaluate). Axios is not directly available in this context unless it's
+// specifically injected into the browser page. For now, these functions will continue to use the native `fetch`.
 export async function fetchGetWithinPage<TResult>(
   page: Page,
   url: string,
