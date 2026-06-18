@@ -29,7 +29,6 @@ export async function fetchPost<TResult = any>(
   data: Record<string, any>,
   headers: Record<string, any> = {},
 ): Promise<TResult> {
-
   const response = await axios.post(url, data, { headers });
 
   if (response.status !== 200) {
