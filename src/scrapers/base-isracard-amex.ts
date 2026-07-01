@@ -404,15 +404,16 @@ class IsracardAmexBaseScraper extends BaseScraperWithBrowser<ScraperSpecificCred
     // hints and JS-level stealth overrides.  maskHeadlessUserAgent only replaced
     // "HeadlessChrome" → "Chrome" in the UA string which is no longer sufficient.
     // See: https://github.com/eshaham/israeli-bank-scrapers/issues/1057
-    const chromeVersion = await this.page.browser().version().then(v => {
-      const match = v.match(/Chrome\/(\d+)/);
-      return match ? match[1] : '127';
-    });
+    const chromeVersion = await this.page
+      .browser()
+      .version()
+      .then(v => {
+        const match = v.match(/Chrome\/(\d+)/);
+        return match ? match[1] : '127';
+      });
     const fullVersion = `${chromeVersion}.0.0.0`;
-    const userAgent =
-      `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${fullVersion} Safari/537.36`;
-    const secChUa =
-      `"Chromium";v="${chromeVersion}", "Not)A;Brand";v="99", "Google Chrome";v="${chromeVersion}"`;
+    const userAgent = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${fullVersion} Safari/537.36`;
+    const secChUa = `"Chromium";v="${chromeVersion}", "Not)A;Brand";v="99", "Google Chrome";v="${chromeVersion}"`;
 
     await this.page.setUserAgent(userAgent);
 
@@ -420,9 +421,10 @@ class IsracardAmexBaseScraper extends BaseScraperWithBrowser<ScraperSpecificCred
       Object.defineProperty(navigator, 'webdriver', { get: () => false });
       Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
       Object.defineProperty(navigator, 'languages', { get: () => ['he-IL', 'he', 'en-US', 'en'] });
-      if (!window.chrome) (window as any).chrome = {};
-      if (!(window as any).chrome.runtime) {
-        (window as any).chrome.runtime = { connect: () => {}, sendMessage: () => {} };
+      const thisWindow = window as any;
+      if (!thisWindow.chrome) thisWindow.chrome = {};
+      if (!thisWindow.chrome.runtime) {
+        thisWindow.chrome.runtime = { connect: () => {}, sendMessage: () => {} };
       }
     });
 
