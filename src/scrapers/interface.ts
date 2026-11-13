@@ -29,8 +29,7 @@ export type OptInFeatures =
   | 'isracard-amex:skipAdditionalTransactionInformation'
   | 'mizrahi:pendingIfNoIdentifier'
   | 'mizrahi:pendingIfHasGenericDescription'
-  | 'mizrahi:pendingIfTodayTransaction'
-  | 'oneZero:includeCreditCards';
+  | 'mizrahi:pendingIfTodayTransaction';
 
 export interface FutureDebit {
   amount: number;
